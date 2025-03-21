@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Αυτόματο Sierpiński</title>
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
+  
+    <style>
+
+      html {
+        --maincolor: teal;
+        --fontcolor: white;
+        --shadow: 0px 0px 15px -8px rgba(0,0,0,0.75);
+        font-family: "Geologica", serif;
+      }
+
+      ::selection {
+        background: var(--maincolor);
+      }
+
+      body {
+        background-color: black;
+        color: var(--fontcolor);
+        margin: 0;
+        padding: 0;
+        
+      }
+
+      #back {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        font-size: 2rem;
+        color: var(--maincolor);
+        border: none;
+        outline: none;
+        padding: 0;
+        background-color: transparent;
+      }
+
+      #back:hover {
+        cursor: pointer;
+      }
+
+      canvas {
+        display: block;
+        box-sizing: border-box;
+        background-color: black;
+        margin: 1rem auto;
+      }
+
+      .controls {
+        display: flex;
+        justify-items: start;
+        gap: 2rem;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #play {
+        font-size: 2rem;
+        color: var(--maincolor);
+        border: none;
+        outline: none;
+        padding: 0;
+        background-color: transparent;
+      }
+
+      #play:hover {
+        cursor: pointer;
+      }
+
+      input {
+        background-color: black;
+        color: var(--fontcolor);
+        font-weight: 900;
+        padding: 4px 4px 4px 1rem;
+        border-radius: 10px;
+        border-color: var(--maincolor);
+      }
+
+      @media (max-width: 500px) {
+      body {
+        padding: 1rem;
+        height: 95dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+      }
+
+      canvas {
+        width: min(100%, 90vmin);
+      }
+
+      .controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-end;
+      }
+    }
+
+
+    </style>
+</head>
+<body>
+
+  <button id ="back" onclick="history.back()"><i class="fa-regular fa-circle-left"></i></button>
+  
+    <canvas></canvas>
+
+    <div class="controls">
+        <label for="speedInput">Tαχύτητα (ms):</label>
+        <input type="number" id="speedInput" value="1000" min="10">
+        <button id="play"><i class="fa-regular fa-circle-play"></i></button>
+    </div>
+
+    <script>
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext("2d");
+        const startButton = document.getElementById("play");
+        const speedInput = document.getElementById("speedInput");
+
+        let width = canvas.width = window.innerWidth;// Math.min(window.innerWidth, window.innerHeight);
+        let height = canvas.height = window.innerHeight * 0.8;// 0.8 * Math.min(window.innerWidth, window.innerHeight);
+        let cellSize = 3;
+        let cols =  Math.floor(width / cellSize);
+        let rows = Math.floor(height / cellSize);
+        //let rows = Math.min(256, Math.floor(height / cellSize));
+
+        let grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+
+        // Initialize first row with a single cell in the middle
+        grid[0][Math.floor(cols / 2)] = 1;
+
+        // Resize canvas dynamically
+        window.addEventListener("resize", () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight * 0.8;
+            cols = Math.floor(width / cellSize);
+            rows = Math.floor(height / cellSize);
+            grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+            grid[0][Math.floor(cols / 2)] = 1;
+            ctx.clearRect(0, 0, width, height);
+        });
+
+        // Draw grid on canvas
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = "teal";
+            for (let y = 0; y < rows; y++) {
+              for (let x = 0; x < cols; x++) {
+                if (grid[y][x] === 1) {
+                  //ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                  ctx.beginPath();
+                  ctx.arc(x * cellSize, y * cellSize, cellSize/2, 0, Math.PI * 2);
+                  ctx.fill();
+                }
+              }
+            }
+          }
+
+        // Generate next row based on Rule 90 (XOR of two neighbors)
+        function generateRow(row) {
+            if (row >= rows) return;
+            for (let x = 1; x < cols - 1; x++) {
+                grid[row][x] = grid[row - 1][x - 1] ^ grid[row - 1][x + 1];
+            }
+            draw();
+            setTimeout(() => generateRow(row + 1), Number(speedInput.value) || 50);
+        }
+
+        // Start button event listener
+        startButton.addEventListener("click", () => {
+            ctx.clearRect(0, 0, width, height);
+            grid = Array.from({ length: rows }, () => Array(cols).fill(0));
+            grid[0][Math.floor(cols / 2)] = 1;
+            draw();
+            generateRow(1);
+        });
+    </script>
+
+</body>
+</html>

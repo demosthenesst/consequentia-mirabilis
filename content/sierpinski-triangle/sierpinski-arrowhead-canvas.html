@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="gr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Καμπύλη του Sierpiński</title>
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
+
+
+  <style>
+    html {
+      --maincolor: teal;
+      --fontcolor: white;
+      font-family: "Geologica", serif;
+    }
+
+    ::selection {
+      background: var(--maincolor);
+    }
+
+    body {
+      background-color: black;
+      color: var(--fontcolor);
+      margin: 0;
+      padding: 0;
+    }
+
+    #back {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-size: 2rem;
+      color: var(--maincolor);
+      border: none;
+      outline: none;
+      padding: 0;
+      background-color: transparent;
+    }
+
+    #back:hover {
+      cursor: pointer;
+    }
+
+    canvas {
+      width: min(100%, 100vmin);
+      display: block;
+      box-sizing: border-box;
+      background-color: black;
+      margin: 1rem auto;
+    }
+
+    .controls {
+      display: flex;
+      justify-items: start;
+      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    input[type="range"] {
+      background-color: black;
+      border-radius: 4px;
+    }
+
+    input[type="range"]::-moz-range-track {
+      background-color: var(--maincolor);
+      height: 0.2em;
+      border-radius: 1px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      background-color: var(--maincolor);
+      border: none;
+      height: 1.5rem;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      background-color: var(--maincolor);
+    }
+
+    @media (max-width: 500px) {
+      body {
+        height: 95dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+    }    
+    
+  </style>
+</head>
+<body>
+
+  <button id="back" onclick="history.back()"><i class="fa-regular fa-circle-left"></i></button>
+
+  <canvas></canvas>
+
+  <div class="controls">
+    <label for="depth">Επαναληπτικό βήμα: <span id="depthValue">0</span></label>
+    <input type="range" id="depth" min="0" max="9" step="1" value="0" onclick="draw()">
+  </div>
+
+  <script>
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    const depthSlider = document.getElementById('depth');
+    const depthValue = document.getElementById('depthValue');
+
+    function generateLSystem(depth) {
+      let str = 'A'; // Axiom
+      for (let i = 0; i < depth; i++) {
+        let newStr = '';
+        for (let char of str) {
+          if (char === 'A') {
+            newStr += 'B-A-B';
+          } else if (char === 'B') {
+            newStr += 'A+B+A';
+          } else {
+            newStr += char; // for '+' and '-'
+          }
+        }
+        str = newStr;
+      }
+      return str;
+    }
+
+    function getPath(lstring, depth) {
+      const step = 1; // unit step length
+      let initialAngle = (depth % 2 === 1) ? Math.PI / 3 : 0;
+      let angle = initialAngle;
+      let x = 0, y = 0;
+      const points = [{ x, y }];
+
+      const angleIncrement = Math.PI / 3; // 60° turn
+
+      for (let char of lstring) {
+        if (char === 'A' || char === 'B') {
+          // Move forward.
+          x += step * Math.cos(angle);
+          y += step * Math.sin(angle);
+          points.push({ x, y });
+        } else if (char === '+') {
+          angle += angleIncrement;
+        } else if (char === '-') {
+          angle -= angleIncrement;
+        }
+      }
+      return points;
+    }
+
+    function changeOfCoordinates() { // change of coordinates
+      ctx.translate(0, canvas.height); // Move origin to bottom-left
+      ctx.scale(1, -1); // Flip the Y-axis
+    }
+
+    function resizeCanvas() {
+      const size = Math.min(window.innerWidth, window.innerHeight);
+      canvas.width = size;
+      canvas.height = (Math.sqrt(3)/2) * size;
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      changeOfCoordinates();
+    }
+
+    window.addEventListener("resize", ()=> {
+      resizeCanvas();
+      draw();
+    });
+    
+    window.addEventListener("load", ()=> {
+      resizeCanvas();
+      draw();
+    });
+
+    function draw() {
+      const depth = parseInt(depthSlider.value, 10);
+      depthValue.textContent = depth;
+      //depthValue.value = depth;
+
+      
+      
+      // Generate the L-system string and compute the path.
+      const lstring = generateLSystem(depth);
+      const points = getPath(lstring, depth);
+
+      // Compute the bounding box of the path.
+      let minX = Infinity, maxX = -Infinity;
+      let minY = Infinity, maxY = -Infinity;
+      for (let pt of points) {
+        if (pt.x < minX) minX = pt.x;
+        if (pt.x > maxX) maxX = pt.x;
+        if (pt.y < minY) minY = pt.y;
+        if (pt.y > maxY) maxY = pt.y;
+      }
+      const pathWidth = maxX - minX;
+      const pathHeight = maxY - minY;
+
+      // Calculate a scale to fit the path within the canvas (with a margin).
+      const margin = 20;
+      const scaleX = (canvas.width - 2 * margin) / pathWidth;
+      const scaleY = (canvas.height - 2 * margin) / pathHeight;
+      const scale = Math.min(scaleX, scaleY);
+
+      // Clear the canvas.
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+
+      // Transform and move to the first point.
+      const startX = margin + (points[0].x - minX) * scale;
+      const startY = margin + (points[0].y - minY) * scale;
+      ctx.moveTo(startX, startY);
+
+      // Draw line segments for the entire path.
+      for (let i = 1; i < points.length; i++) {
+        const x = margin + (points[i].x - minX) * scale;
+        const y = margin + (points[i].y - minY) * scale;
+        ctx.lineTo(x, y);
+      }
+
+      ctx.strokeStyle = 'teal';
+      if (depth<7) {ctx.lineWidth = 2;} else {ctx.lineWidth = 1;}
+      //ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    // Update drawing when the slider changes.
+    depthSlider.addEventListener('input', draw);
+
+    // Initial drawing.
+    //drawCurve();
+  </script>
+</body>
+</html>

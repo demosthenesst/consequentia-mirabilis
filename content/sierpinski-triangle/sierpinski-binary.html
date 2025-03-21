@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="gr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Δυαδικός Αλγόριθμος</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
+
+  <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+  <style>
+    html {
+      --maincolor: teal;
+      --fontcolor: white;
+      --backgroundcolor: #eaffc9;
+      font-family: "Geologica", serif;
+    }
+
+    ::selection {
+      background: var(--maincolor);
+    }
+
+    body {
+      background-color: black;
+      color: var(--fontcolor);
+      margin: 0;
+      padding: 0;
+    }
+
+    #back {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-size: 2rem;
+      color: var(--maincolor);
+      border: none;
+      outline: none;
+      padding: 0;
+      background-color: transparent;
+    }
+
+    #back:hover {
+      cursor: pointer;
+    }
+
+    canvas {
+      width: min(100%, 80vmin);
+      display: block;
+      box-sizing: border-box;
+      background-color: black;
+      margin: 1rem auto;
+    }
+
+    .controls {
+      display: flex;
+      justify-items: start;
+      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #play {
+      font-size: 2rem;
+      color: var(--maincolor);
+      border: none;
+      outline: none;
+      padding: 0;
+      background-color: transparent;
+    }
+
+    #play:hover {
+      cursor: pointer;
+    }
+
+    input {
+      background-color: black;
+      color: var(--fontcolor);
+      font-weight: 900;
+      padding: 4px 4px 4px 1rem;
+      border-radius: 10px;
+      border-color: var(--maincolor);
+    }
+
+    @media (max-width: 500px) {
+      .controls {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-end;
+      }
+
+      body {
+        height: 95dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content:flex-end;
+        align-items: flex-end;
+        padding: 1rem;
+        gap: 2rem;
+      }
+
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <button id="back" onclick="history.back()"><i class="fa-regular fa-circle-left"></i></button>
+
+    <canvas></canvas>
+    <div class="controls">
+     
+      <label for="repetitions" id="repetitions-label">Πλήθος επαναλήψεων: <span></span></label>
+      <div>
+        <span id="repetitions-counter"></span>
+        <input type="number" id="repetitions" min="1" max="100000" value="50000"  step="10">
+      </div>
+     
+      <label for="timing" id="timing-label">Χρόνος επανάληψης: <span></span></label>
+      <input type="number" id="timing" min="1" max="1000" value="1"  step="10">
+
+      <button id="play"><i class="fa-regular fa-circle-play" onclick="draw();"></i></button>
+    </div>
+
+</body>
+
+<script>
+
+  const canvas = document.querySelector("canvas");
+  const ctx = canvas.getContext("2d");
+
+  function changeOfCoordinates() { // change of coordinates
+    ctx.translate(0, canvas.height); // Move origin to bottom-left
+    ctx.scale(1, -1); // Flip the Y-axis
+  }
+
+  function resizeCanvas() {
+    const size = Math.min(window.innerWidth, window.innerHeight);
+    canvas.width = size;
+    canvas.height = size;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    changeOfCoordinates();
+  }
+
+  window.addEventListener("resize", ()=> {
+    resizeCanvas();
+  });
+
+  window.addEventListener("load", ()=> {
+    resizeCanvas();
+  });
+
+  function drawCircle([x, y], radius = 1, color='black') { 
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawLine([x1, y1], [x2, y2], lwidth=2, color='black') {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lwidth;
+    ctx.stroke();
+  }
+ 
+  function binToDec(arr) {
+    let dec = 0;
+    arr.forEach((el, idx) => {
+      dec = dec + el * 2**(-idx-1);
+    });
+    return dec;
+  }
+
+  const binaryLength = 15;
+
+  function draw() { 
+
+    const randomBinRep = (n) =>
+    Array.from(
+      { length: n },
+      () => Math.floor(Math.random() * 2)
+    );
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let w = canvas.width;
+
+    const randomBinArrayX = randomBinRep(binaryLength);
+    const randomBinArrayY = randomBinArrayX.map( x => {
+      if (x == 0){
+        return Math.floor(Math.random() * 2);
+      } else {
+        return 0;
+      }
+    });
+
+    P0 = [0,0];
+    P1 = [0,w];
+    P2 = [w,0];
+
+    drawCircle(P0, 1, 'teal');
+    drawCircle(P1, 1, 'teal');
+    drawCircle(P2, 1, 'teal');
+    drawLine(P0, P1, 1, 'teal');
+    drawLine(P1, P2, 1, 'teal');
+    drawLine(P2, P0, 1, 'teal');
+
+    
+
+    let timing = document.querySelector('#timing').value;
+    let repetitions = document.querySelector('#repetitions').value;
+    document.querySelector('#repetitions-counter').innerHTML = `<i class="fa-solid fa-spinner fa-spin-pulse"></i>`;
+    let P;
+
+    for (let i = 0; i < repetitions; i++) {
+      setTimeout(((index) => {
+        return () => {
+          let randomBinArrayX = randomBinRep(binaryLength);
+          let randomBinArrayY = randomBinArrayX.map( x => {
+            if (x == 0){
+              return Math.floor(Math.random() * 2);
+            } else {
+              return 0;
+            }
+            });
+
+          P = [w*binToDec(randomBinArrayX), w*binToDec(randomBinArrayY)];
+          drawCircle(P, 0.5, 'teal');
+
+          if (i==repetitions-1) {document.querySelector('#repetitions-counter').innerHTML = `<i class="fa-solid fa-check"></i>`;}
+              
+        };
+      })(i), timing * i);
+    };
+  }
+</script>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="gr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Τρίγωνο του Sierpiński</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
+
+  <style>
+    html {
+      --maincolor: teal;
+      --fontcolor: white;
+      --shadow: 0px 0px 15px -8px rgba(0,0,0,0.75);
+
+      font-family: "Geologica", serif;
+    }
+
+    ::selection {
+      background: var(--maincolor);
+    }
+
+    body {
+      background-color: black;
+      color: var(--fontcolor);
+      margin: 0;
+      padding: 0;
+    }
+
+    .controls {
+      display: flex;
+      justify-items: start;
+      gap: 2rem;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #back {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      font-size: 2rem;
+      color: var(--maincolor);
+      border: none;
+      outline: none;
+      padding: 0;
+      background-color: transparent;
+    }
+
+    #back:hover {
+      cursor: pointer;
+    }
+
+    canvas {
+      width: min(100%, 100vmin);
+      display: block;
+      box-sizing: border-box;
+      background-color: black;
+      margin: 1rem auto;
+    }
+
+
+    input[type="range"] {
+      background-color: black;
+      border-radius: 4px;
+    }
+
+
+    input[type="range"]::-moz-range-track {
+      background-color: var(--maincolor);
+      height: 0.2em;
+      border-radius: 1px;
+    }
+
+
+    input[type="range"]::-moz-range-thumb {
+      background-color: var(--maincolor);
+      border: none;
+      height: 1.5rem;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      background-color: var(--maincolor);
+    }
+
+    @media (max-width: 500px) {
+      body {
+        height: 95dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+      }
+    }
+
+
+  </style>
+</head>
+
+<body>
+  <button id="back" onclick="history.back()"><i class="fa-regular fa-circle-left"></i></button>
+
+      <canvas></canvas>
+  <div class="controls">
+    <label for="depth" id="depth-label">Επαναληπτικό βήμα: <span>0</span></label>
+    <input type="range" id="depth" min="0" max="8" value="0" onchange="draw();">
+  </div>
+</body>
+
+<script>
+
+  const canvas = document.querySelector("canvas");
+  const ctx = canvas.getContext("2d");
+
+  function changeOfCoordinates() { // change of coordinates
+    ctx.translate(0, canvas.height); // Move origin to bottom-left
+    ctx.scale(1, -1); // Flip the Y-axis
+  }
+
+  function resizeCanvas() {
+    const size = Math.min(window.innerWidth, window.innerHeight);
+    canvas.width = size;
+    canvas.height = (Math.sqrt(3)/2) * size;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    changeOfCoordinates(canvas,ctx);
+  }
+
+  window.addEventListener("resize", ()=> {
+    resizeCanvas();
+    draw();
+
+  });
+  window.addEventListener("load", ()=> {
+    resizeCanvas();
+    draw();
+  });
+
+  function drawTriangle(x1, y1, x2, y2, x3, y3) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.lineTo(x3, y3);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function sierpinski(x1, y1, x2, y2, x3, y3, depth) {
+    if (depth === 0) {
+        drawTriangle(x1, y1, x2, y2, x3, y3);
+        return;
+    }
+    
+    const mid1x = (x1 + x2) / 2, mid1y = (y1 + y2) / 2;
+    const mid2x = (x2 + x3) / 2, mid2y = (y2 + y3) / 2;
+    const mid3x = (x1 + x3) / 2, mid3y = (y1 + y3) / 2;
+    
+    sierpinski(x1, y1, mid1x, mid1y, mid3x, mid3y, depth - 1);
+    sierpinski(mid1x, mid1y, x2, y2, mid2x, mid2y, depth - 1);
+    sierpinski(mid3x, mid3y, mid2x, mid2y, x3, y3, depth - 1);
+  }
+
+  function draw() {
+    let w = canvas.width;
+    let h = canvas.height;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "teal";
+    
+    const depth = document.getElementById("depth").value;
+    document.querySelector("#depth-label>span").innerHTML = ` ${depth}`;
+
+    const x1 = 0, y1 = 0;
+    const x2 = w/2, y2 = h;
+    const x3 = w, y3 = 0;
+    
+    if (depth == 0) {
+      drawTriangle(x1, y1, x2, y2, x3, y3);
+    } else {
+      sierpinski(x1, y1, x2, y2, x3, y3, depth);
+    }
+  }
+</script>
+</html>
