@@ -48,7 +48,6 @@
       border: none;
       outline: none;
       padding: 0;
-      background-color: transparent;
     }
 
     #back:hover {
@@ -63,19 +62,16 @@
       margin: 1rem auto;
     }
 
-
     input[type="range"] {
       background-color: black;
       border-radius: 4px;
     }
-
 
     input[type="range"]::-moz-range-track {
       background-color: var(--maincolor);
       height: 0.2em;
       border-radius: 1px;
     }
-
 
     input[type="range"]::-moz-range-thumb {
       background-color: var(--maincolor);
@@ -101,8 +97,10 @@
 </head>
 
 <body>
-  <button id="back" onclick="history.back()"><i class="fa-regular fa-circle-left"></i></button>
+  <!-- <button id="back" onclick="history.back()"><i class="fa-regular fa-circle-left"></i></button> -->
 
+  <a id="back" href="sierpinski.html"><i class="fa-regular fa-circle-left"></i></a>
+  
       <canvas></canvas>
   <div class="controls">
     <label for="depth" id="depth-label">Επαναληπτικό βήμα: <span>0</span></label>
