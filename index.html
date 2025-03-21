@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consequentia Mirabilis</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+
+
+
+</head>
+
+<style>
+
+  html {
+    --fontcolor1: rgb(195, 127, 0);
+    --backgroundcolor: #c1dbea
+  }
+
+
+body {
+  font-family: "Manrope", "Geologica", sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  background-color: var(--backgroundcolor);
+  color: #333;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-content: space-between;
+}
+
+.hero {
+  padding: 1rem 2rem;
+  text-align: center;
+  border-bottom: 3px solid black
+}
+
+.hero h1 {
+  font-family: "Geologica", sans-serif;
+  margin: 0;
+  font-size: 3rem;
+  font-size: clamp(1.5rem, 0.6rem + 4.8vw, 3rem);
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--fontcolor1);
+}
+
+.hero p {
+  margin: 1rem;
+  font-family: "Geologica", sans-serif;
+  letter-spacing: 1px;
+  font-size: clamp(1rem, 0.4rem + 3.2vw, 2rem);
+  font-weight: 900;
+}
+
+.articles-section {
+  padding: 0rem 2rem;
+  flex-grow: 2;
+}
+
+.articles-section h2 {
+  font-family: "Geologica", sans-serif;
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: clamp(1rem, 0.4rem + 3.2vw, 2rem);
+}
+
+.articles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 3rem;
+}
+
+.card {
+  background: rgb(230, 255, 255);
+  padding: 1rem;
+  box-shadow: 2px 2px 7px 0px rgba(0,0,0,0.75);
+  border-left: clamp(0.125rem, -0.7rem + 4.4vw, 1.5rem) solid var(--fontcolor1);
+}
+
+.card h3 {
+  font-family: "Geologica", sans-serif;
+  font-weight: 900;
+  margin-top: 0;
+  color: var(--fontcolor1);
+}
+
+.card p {
+  color: #202020;
+}
+
+.card:hover {
+  cursor: pointer;
+  background-color: #2c3e50;
+  animation: rotation 0.3s;
+}
+
+.card:hover p {
+  color: white;
+}
+
+@keyframes rotation {
+  0% {transform: rotate(0deg);}
+  25% {transform: rotate(-1deg);}
+  50% {transform: rotate(0deg);}
+  75% {transform: rotate(1deg);}
+  100% {transform: rotate(0deg);}
+}
+
+
+
+
+footer {
+  font-family: "Geologica", sans-serif;
+  font-weight: 800;
+  width: 100%;
+  text-align: center;
+  background: #2c3e50;
+  color: var(--fontcolor1);
+  font-size: clamp(0.8rem, 0.38rem + 2.24vw, 1.5rem);
+  margin-top: 2rem;
+  letter-spacing: 1px;
+}
+
+</style>
+
+<body>
+
+  <main>
+    <section id="home" class="hero">
+      <h1>Consequentia Mirabilis</h1>
+      <p>Άρθρα Μαθηματικών</p>
+    </section>
+
+    <section id="articles" class="articles-section">
+      <h2>Περιεχόμενα</h2>
+
+      <div class="articles">
+        <article class="card" data-url="https://www.w3schools.com" onclick="goToURL(this)">
+          <h3>Το τρίγωνο του Sierpiński</h3>
+          <p>Μια εισαγωγή στον σαγηνευτικό κόσμο της Κλασματομορφικής Γεωμετρίας.</p>
+        </article>
+
+        <!-- <article class="card">
+          <h3>Number Theory Basics</h3>
+          <p>An introduction to the captivating world of number theory.</p>
+        </article>
+
+        <article class="card">
+          <h3>Calculus in Real Life</h3>
+          <p>Discover how calculus is applied in everyday problems.</p>
+        </article> -->
+
+      </div>
+
+    </section>
+  </main>
+  <footer>
+    <p>Δημοσθένης Σταλίδης, 2025</p>
+  </footer>
+</body>
+
+<script>
+  function goToURL(el) {
+    let url = el.dataset.url;
+    window.open(url, '_blank').focus();
+  }
+
+</script>
+</html>
